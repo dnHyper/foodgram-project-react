@@ -26,7 +26,6 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email', 'id', 'username', 'first_name', 'last_name')
-        # is_subscribed
 
 
 class TagsSerializer(serializers.ModelSerializer):
@@ -34,7 +33,6 @@ class TagsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
-        # fields = ('id',)
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
@@ -97,12 +95,12 @@ class RecipesSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = (
-            'is_in_shopping_cart',
             'id',
             'tags',
             'author',
             'ingredients',
             'is_favorited',
+            'is_in_shopping_cart',
             'name',
             'image',
             'text',

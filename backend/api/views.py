@@ -1,7 +1,19 @@
-
+import reportlab
+from django.db.models import Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import Cart, Favorite, Ingredient, Recipes, Tag
+from foodgram.settings import MEDIA_ROOT, SITE_NAME
+from recipes.models import (Cart, Favorite, Ingredient, IngredientInRecipe,
+                            Recipes, Tag)
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.units import cm
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
@@ -132,10 +144,67 @@ class RecipesViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticatedOrReadOnly],
     )
     def download_shopping_cart(self, request):
-        get_cart = Recipes.objects.filter(shopping_cart__author=request.user)
+        get_cart = IngredientInRecipe.objects.filter(
+            recipe__cart__author=request.user
+        ).values(
+            'ingredient__name',
+            'amount',
+            'ingredient__measurement_unit'
+        ).annotate(
+            Sum('amount')
+        )
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment;'
+        reportlab.rl_config.TTFSearchPath.append(str(MEDIA_ROOT) + '/fonts')
+        pdfmetrics.registerFont(TTFont('Open Sans', 'opensans.ttf'))
+        text_cart = ""
+        for value in get_cart:
+            text_cart += (
+                value['ingredient__name'] + " (" +
+                value['ingredient__measurement_unit'] + ") — " +
+                str(value['amount__sum']) + "<br />"
+            )
 
-        if not get_cart:
-            error = {'errors': 'У вас не сохранено ни одного рецепта.'}
-            return Response(error, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        pdf = SimpleDocTemplate(
+            response,
+            title=f"Список рецептов с сайта {SITE_NAME}",
+            pagesize=A4,
+            rightMargin=2*cm,
+            leftMargin=2*cm,
+            topMargin=2*cm,
+            bottomMargin=2*cm
+        )
+        styles = getSampleStyleSheet()
+        styles.add(ParagraphStyle(
+            name='Top Recipe',
+            fontName='Open Sans',
+            fontSize=15,
+            leading=20,
+            backColor=colors.blueviolet,
+            textColor=colors.white,
+            alignment=TA_CENTER)
+        )
+        styles.add(ParagraphStyle(
+            name='Ingredient',
+            fontName='Open Sans',
+            fontSize=10,
+            textColor=colors.black,
+            alignment=TA_LEFT)
+        )
+        styles.add(ParagraphStyle(
+            name='Info',
+            fontName='Open Sans',
+            fontSize=9,
+            textColor=colors.silver,
+            alignment=TA_LEFT)
+        )
+        pdf_generate = []
+        text_title = 'Ингридиенты:'
+        text_info = f'Этот список был сгенерирован на сайте <b>{SITE_NAME}</b>'
+        pdf_generate.append(Paragraph(text_info, styles['Ingredient']))
+        pdf_generate.append(Spacer(1, 1))
+        pdf_generate.append(Paragraph(text_title, styles["Top Recipe"]))
+        pdf_generate.append(Spacer(1, 24))
+        pdf_generate.append(Paragraph(text_cart, styles['Ingredient']))
+        pdf.build(pdf_generate)
+        return response
