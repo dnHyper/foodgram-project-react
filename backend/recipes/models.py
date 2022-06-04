@@ -39,6 +39,11 @@ class Tag(models.Model):
         unique=True,
     )
 
+    class Meta:
+        ordering = ('name',)
+        verbose_name = 'Тэг'
+        verbose_name_plural = 'Тэги'
+
 
 class Recipes(models.Model):
     """Модель таблицы списка рецептов."""
@@ -102,6 +107,11 @@ class IngredientInRecipe(models.Model):
         "Количество ингридиентов",
         default=1,
     )
+
+    class Meta:
+        ordering = ('ingredient',)
+        verbose_name = 'Ингридиент'
+        verbose_name_plural = 'Ингридиенты'
 
     def __str__(self):
         return f'{self.ingredient} {self.recipe}'
