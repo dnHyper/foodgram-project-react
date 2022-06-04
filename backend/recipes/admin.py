@@ -4,9 +4,12 @@ from .models import Ingredient, Recipes, Tag
 
 
 class RecipesAdmin(admin.ModelAdmin):
-    list_display = ('name', 'text', 'pub_date', 'cooking_time', 'author')
+    list_display = ('pk', 'name', 'author', 'display_tag', 'pub_date')
+    list_editable = ('name', 'author')
+    list_display_links = ('pk',)
     search_fields = ('text', 'name')
-    list_filter = ('pub_date',)
+    list_filter = ('pub_date', 'author', 'tags')
+    fields = ('name', 'text', 'tags', 'author',)
 
 
 class IngredientAdmin(admin.ModelAdmin):

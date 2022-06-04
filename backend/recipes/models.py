@@ -44,6 +44,9 @@ class Tag(models.Model):
         verbose_name = 'Тэг'
         verbose_name_plural = 'Тэги'
 
+    def __str__(self):
+        return self.name
+
 
 class Recipes(models.Model):
     """Модель таблицы списка рецептов."""
@@ -89,6 +92,11 @@ class Recipes(models.Model):
         ordering = ('-pub_date',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+
+    def display_tag(self):
+        return ', '.join(tags.name for tags in self.tags.all()[:3])
+
+    display_tag.short_description = 'Тэг'
 
 
 class IngredientInRecipe(models.Model):
