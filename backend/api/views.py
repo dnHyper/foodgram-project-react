@@ -1,4 +1,5 @@
 import reportlab
+from api.filter import RecipesFilter
 from api.mixins import ViewOnlyViewSet
 from api.permissions import IsAuthorOrAdminOrModeratorPermission
 from api.serializers import (ActionsSerializer, IngredientsSerializer,
@@ -52,7 +53,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     permission_classes = (IsAuthorOrAdminOrModeratorPermission,)
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('author__id', 'tags__name')
+    filterset_class = RecipesFilter
 
     def get_serializer_class(self):
         if self.action == 'create' or self.action == 'partial_update':
