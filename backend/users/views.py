@@ -5,7 +5,7 @@ from rest_framework import permissions, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from users.models import Subscriptions
+from users.models import Subscription
 from users.serializers import SubShowSerializer
 
 
@@ -22,7 +22,7 @@ class CustomUserViewSet(UserViewSet):
     )
     def subscribe(self, request, id=None):
         user = get_object_or_404(User, id=id)
-        follow = Subscriptions.objects.filter(
+        follow = Subscription.objects.filter(
             user=request.user,
             following=user
         )
@@ -32,7 +32,7 @@ class CustomUserViewSet(UserViewSet):
                     'errors': 'Вы пытаетесь подписаться на себя.'
                 }
                 return Response(error, status=status.HTTP_400_BAD_REQUEST)
-            obj, created = Subscriptions.objects.get_or_create(
+            obj, created = Subscription.objects.get_or_create(
                 user=request.user,
                 following=user
             )
@@ -40,7 +40,6 @@ class CustomUserViewSet(UserViewSet):
                 error = {
                     'errors': 'Вы уже подписаны на этого пользователя.'
                 }
-                follow.delete()
                 return Response(error, status=status.HTTP_400_BAD_REQUEST)
             serializer = SubShowSerializer(obj, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -52,3 +51,19 @@ class CustomUserViewSet(UserViewSet):
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
         follow.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        permission_classes=[permissions.IsAuthenticatedOrReadOnly],
+    )
+    def subscriptions(self, request):
+        pages = self.paginate_queryset(
+            Subscription.objects.filter(user=request.user)
+        )
+
+        serializer = SubShowSerializer(
+            pages, many=True, context={'request': request}
+        )
+
+        return self.get_paginated_response(serializer.data)

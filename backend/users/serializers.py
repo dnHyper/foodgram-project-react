@@ -1,6 +1,6 @@
 from api.serializers import RecipeSmallSerializer
 from rest_framework import serializers
-from users.models import Subscriptions, User
+from users.models import Subscription, User
 
 
 class UserShowSerializer(serializers.ModelSerializer):
@@ -15,7 +15,7 @@ class UserShowSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         if (
             not user.is_authenticated
-            or not Subscriptions.objects.filter(
+            or not Subscription.objects.filter(
                 user=user,
                 following=username
             ).exists()
@@ -154,5 +154,9 @@ class SubShowSerializer(UserShowSerializer):
         return True
 
     def get_recipes(self, data):
-        recipes = data.following.recipes.all()[:5]
+        """Получаем рецепты пользователя."""
+        limit = self.context.get('request').query_params.get('recipes_limit')
+        if not limit:
+            limit = 3
+        recipes = data.following.recipes.all()[:int(limit)]
         return RecipeSmallSerializer(recipes, many=True).data

@@ -51,7 +51,7 @@ class User(AbstractUser):
         return self.email
 
 
-class Subscriptions(models.Model):
+class Subscription(models.Model):
     """Модель пользовательских подписок."""
     user = models.ForeignKey(
         User,
