@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from users.models import User
+from users.models import Subscriptions, User
 
 
 class UserShowSerializer(serializers.ModelSerializer):
@@ -9,6 +9,17 @@ class UserShowSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=150, required=True)
     first_name = serializers.CharField(max_length=150, required=True)
     last_name = serializers.CharField(max_length=150, required=True)
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
+
+    def get_is_subscribed(self, username):
+        user = self.context["request"].user
+        if (not user.is_authenticated or
+            not Subscriptions.objects.filter(
+                user=user,
+                following=username
+                ).exists()):
+            return False
+        return True
 
     class Meta:
         model = User
@@ -18,6 +29,7 @@ class UserShowSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
+            'is_subscribed',
         )
 
 

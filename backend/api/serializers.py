@@ -110,6 +110,18 @@ class RecipesSerializer(serializers.ModelSerializer):
         model = Recipes
 
 
+class RecipeSmallSerializer(serializers.ModelSerializer):
+    """Сериализатор для вывода списка рецептов в подписках."""
+    class Meta:
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+            )
+        model = Recipes
+
+
 class RecipesSerializerCreate(serializers.ModelSerializer):
     """Сериализатор создания рецептов."""
     author = UserSerializer(
