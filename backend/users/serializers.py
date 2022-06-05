@@ -1,6 +1,5 @@
 from api.serializers import RecipeSmallSerializer
 from rest_framework import serializers
-
 from users.models import Subscriptions, User
 
 
@@ -14,11 +13,13 @@ class UserShowSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, username):
         user = self.context["request"].user
-        if (not user.is_authenticated or
-            not Subscriptions.objects.filter(
+        if (
+            not user.is_authenticated
+            or not Subscriptions.objects.filter(
                 user=user,
                 following=username
-                ).exists()):
+            ).exists()
+        ):
             return False
         return True
 

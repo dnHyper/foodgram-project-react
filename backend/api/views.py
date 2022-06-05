@@ -1,4 +1,9 @@
 import reportlab
+from api.mixins import ViewOnlyViewSet
+from api.permissions import IsAuthorOrAdminOrModeratorPermission
+from api.serializers import (ActionsSerializer, IngredientsSerializer,
+                             RecipesSerializer, RecipesSerializerCreate,
+                             TagsSerializer)
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -19,12 +24,6 @@ from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-
-from api.mixins import ViewOnlyViewSet
-from api.permissions import IsAuthorOrAdminOrModeratorPermission
-from api.serializers import (ActionsSerializer, IngredientsSerializer,
-                             RecipesSerializer, RecipesSerializerCreate,
-                             TagsSerializer)
 
 
 class IngredientFilter(SearchFilter):
@@ -160,19 +159,19 @@ class RecipesViewSet(viewsets.ModelViewSet):
         text_cart = ""
         for value in get_cart:
             text_cart += (
-                value['ingredient__name'] + " (" +
-                value['ingredient__measurement_unit'] + ") — " +
-                str(value['amount__sum']) + "<br />"
+                value['ingredient__name'] + " ("
+                + value['ingredient__measurement_unit'] + ") — "
+                + str(value['amount__sum']) + "<br />"
             )
 
         pdf = SimpleDocTemplate(
             response,
             title=f"Список рецептов с сайта {SITE_NAME}",
             pagesize=A4,
-            rightMargin=2*cm,
-            leftMargin=2*cm,
-            topMargin=2*cm,
-            bottomMargin=2*cm
+            rightMargin=2 * cm,
+            leftMargin=2 * cm,
+            topMargin=2 * cm,
+            bottomMargin=2 * cm
         )
         styles = getSampleStyleSheet()
         styles.add(ParagraphStyle(

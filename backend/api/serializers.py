@@ -82,15 +82,19 @@ class RecipesSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, recipe):
         user = self.context["request"].user
-        if (not user.is_authenticated or
-                not recipe.favorite.filter(author=user).last()):
+        if (
+            not user.is_authenticated
+            or not recipe.favorite.filter(author=user).last()
+        ):
             return False
         return True
 
     def get_is_in_shopping_cart(self, recipe):
         user = self.context["request"].user
-        if (not user.is_authenticated or
-                not recipe.cart.filter(author=user).last()):
+        if (
+            not user.is_authenticated
+            or not recipe.cart.filter(author=user).last()
+        ):
             return False
         return True
 
@@ -106,7 +110,7 @@ class RecipesSerializer(serializers.ModelSerializer):
             'image',
             'text',
             'cooking_time'
-            )
+        )
         model = Recipes
 
 
@@ -118,7 +122,7 @@ class RecipeSmallSerializer(serializers.ModelSerializer):
             'name',
             'image',
             'cooking_time'
-            )
+        )
         model = Recipes
 
 
@@ -144,7 +148,7 @@ class RecipesSerializerCreate(serializers.ModelSerializer):
             'text',
             'tags',
             'cooking_time'
-            )
+        )
         model = Recipes
 
     def validate_name(self, name):
@@ -230,5 +234,5 @@ class ActionsSerializer(serializers.ModelSerializer):
             'name',
             'image',
             'cooking_time'
-            )
+        )
         model = Recipes

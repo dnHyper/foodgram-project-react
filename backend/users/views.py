@@ -5,7 +5,6 @@ from rest_framework import permissions, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-
 from users.models import Subscriptions
 from users.serializers import SubShowSerializer
 
@@ -24,8 +23,8 @@ class CustomUserViewSet(UserViewSet):
     def subscribe(self, request, id=None):
         user = get_object_or_404(User, id=id)
         follow = Subscriptions.objects.filter(
-                user=request.user,
-                following=user
+            user=request.user,
+            following=user
         )
         if request.method == 'POST':
             if user == request.user:
