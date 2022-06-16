@@ -13,11 +13,11 @@ class UserShowSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, username):
         user = self.context["request"].user
-        return bool(not user.is_anonymous
-                    and Subscription.objects.filter(
-                        user=user,
-                        following=username
-                    ).exists())
+        return (not user.is_anonymous
+                and Subscription.objects.filter(
+                    user=user,
+                    following=username
+                ).exists())
 
     class Meta:
         model = User
@@ -128,6 +128,7 @@ class TokenSerializer(serializers.Serializer):
 class SubShowSerializer(UserShowSerializer):
     """Сериализатор для вывода пользователя/списка пользователей."""
     email = serializers.ReadOnlyField(source='following.email')
+    id = serializers.ReadOnlyField(source='following.id')
     username = serializers.ReadOnlyField(source='following.username')
     first_name = serializers.ReadOnlyField(source='following.first_name')
     last_name = serializers.ReadOnlyField(source='following.last_name')
@@ -138,6 +139,7 @@ class SubShowSerializer(UserShowSerializer):
         model = User
         fields = (
             'email',
+            'id',
             'username',
             'first_name',
             'last_name',

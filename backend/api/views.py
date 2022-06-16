@@ -12,11 +12,19 @@ from api.filter import RecipesFilter
 from api.mixins import ViewOnlyViewSet
 from api.utils import pdf_generate
 from api.permissions import IsAuthorOrAdminOrModeratorPermission
-from api.serializers import (ActionsSerializer, IngredientsSerializer,
-                             RecipesSerializer, RecipesSerializerCreate,
-                             TagsSerializer)
-from recipes.models import (Cart, Favorite, Ingredient, IngredientInRecipe,
-                            Recipes, Tag)
+from api.serializers import (
+    ActionsSerializer,
+    IngredientsSerializer,
+    RecipesSerializer,
+    RecipesSerializerCreate,
+    TagsSerializer)
+from recipes.models import (
+    Cart,
+    Favorite,
+    Ingredient,
+    IngredientInRecipe,
+    Recipes,
+    Tag)
 
 
 class IngredientFilter(SearchFilter):
@@ -25,6 +33,7 @@ class IngredientFilter(SearchFilter):
 
 class TagsViewSet(ViewOnlyViewSet):
     """Управление тэгами."""
+
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     queryset = Tag.objects.all()
     serializer_class = TagsSerializer
@@ -32,6 +41,7 @@ class TagsViewSet(ViewOnlyViewSet):
 
 class IngredientsViewSet(ViewOnlyViewSet):
     """Управление ингридиентами."""
+
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     queryset = Ingredient.objects.all()
     serializer_class = IngredientsSerializer
@@ -41,6 +51,7 @@ class IngredientsViewSet(ViewOnlyViewSet):
 
 class RecipesViewSet(viewsets.ModelViewSet):
     """Управление рецептами."""
+
     queryset = Recipes.objects.all()
     pagination_class = PageNumberPagination
     permission_classes = (IsAuthorOrAdminOrModeratorPermission,)

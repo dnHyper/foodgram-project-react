@@ -2,24 +2,25 @@ version: '3.3'
 services:
 
   backend:
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
-      args:
-        - biuldno=0.8
+    build: 1.0
+    image: hyperbrake/foodgram:latest
+    restart: always
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
+    depends_on:
+      - db
+    env_file:
+      - ./.env
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: hyperbrake/foodgram_front:latest
     volumes:
       - ../frontend/:/app/result_build/
+      - static_value:/var/html/static/
 
   nginx:
-    image: nginx:1.19.3
+    image: nginx:1.21.3-alpine
     ports:
       - "80:80"
     volumes:
@@ -30,13 +31,11 @@ services:
       - media_value:/var/html/media/
 
   db:
-    image: postgres:13.0-alpine
+    image: postgres:13.4
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=ps_user
-      - POSTGRES_PASSWORD=ps_password
-      - POSTGRES_DB=password
+    env_file:
+      - ./.env
 
 volumes:
   static_value:
